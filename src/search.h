@@ -330,14 +330,11 @@ template <bool pvNode>
 int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* stack) {
     const int ply = board.ply;
 
-    if (checkForStop<true>())
-        return evaluate(board);
+    if (checkForStop<true>()) return evaluate(board);
 
-    if (ply >= DEPTH)
-        return evaluate(board);
+    if (ply >= DEPTH) return evaluate(board);
 
-    if (depth <= 0)
-        return quiesce<pvNode>(alpha, beta, stack);
+    if (depth <= 0)  return quiesce<pvNode>(alpha, beta, stack);
 
     const bool allNode = (!pvNode && !cutNode);
     const bool nullSearch = ((stack - 1)->move == NULLMOVE);
@@ -356,13 +353,16 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
 
     pvTableLen[ply] = 0;
 
-    if (board.isDraw(ply))
-        return 1 - (nodes & 2); /// beal effect apparently, credit to Ethereal for this
+    if (alpha < 0 && board.hasGameCycle(ply)) {
+        alpha = 1 - (nodes & 2);
+        if (alpha >= beta) return alpha;
+    }
+
+    if (board.isDraw(ply)) return 1 - (nodes & 2); /// beal effect apparently, credit to Ethereal for this
 
     /// mate distance pruning   
     alpha = std::max(alpha, -INF + ply), beta = std::min(beta, INF - ply - 1);
-    if (alpha >= beta)
-        return alpha;
+    if (alpha >= beta) return alpha;
 
     Entry entry{};
 
