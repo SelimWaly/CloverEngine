@@ -297,11 +297,7 @@ public:
             
             int piece = (board[from] ? board[from] : board[to]);
             
-            if (piece && color_of(piece) != turn) continue;
-            
-            for (int j = i + 4; j <= halfMoves; j += 2) {
-                if (history[halfMoves - j].key == history[halfMoves - i].key) return 1;
-            }
+            return piece && color_of(piece) == turn;
         }
         return 0;
     }
