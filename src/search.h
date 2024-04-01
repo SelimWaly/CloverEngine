@@ -321,7 +321,14 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
     pvTableLen[ply] = 0;
 
     if constexpr (!rootNode) {
-        if (board.is_draw(ply)) return 1 - (nodes & 2); /// beal effect, credit to Ethereal for this
+        /// pre-repetition detection
+        if (alpha < 0 && board.has_game_cycle(ply)) {
+            alpha = 1 - (nodes & 2);
+            if (alpha >= beta) return alpha;
+        }
+
+        /// draw score randomization, beal effect
+        if (board.is_draw(ply)) return 1 - (nodes & 2);
 
         /// mate distance pruning   
         alpha = std::max(alpha, -INF + ply), beta = std::min(beta, INF - ply - 1);

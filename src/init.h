@@ -21,6 +21,29 @@
 #include "move.h"
 #include "attacks.h"
 
+void init_cuckoo() {
+    int cnt = 0;
+    for (int pt = BP; pt <= WK; pt++) {
+        if (pt == BP || pt == WP) continue;
+        for (int from = 0; from < 64; from++) {
+            for (int to = from + 1; to < 64; to++) {
+                if (genAttacksSq(0, from, piece_type(pt)) & (1ULL << to)) {
+                    uint16_t move = getMove(from, to, 0, NEUT);
+                    uint64_t key = hashKey[pt][from] ^ hashKey[pt][to] ^ 1;
+                    int ind = (key & 8191);
+                    while (true) {
+                        std::swap(cuckoo[ind], key);
+                        std::swap(cuckoo_moves[ind], move);
+                        if (!move) break;
+                        ind = (ind ==  static_cast<int>(key & 8191) ? (key >> 16) & 8191 : (key & 8191));
+                    }
+                    cnt++;
+                }
+            }
+        }
+    }
+}
+
 void init(Info* info) {
     info->quit = info->stopped = 0;
     info->depth = DEPTH;

@@ -105,6 +105,9 @@ char pieceChar[13];
 uint64_t fileMask[8], rankMask[8];
 uint64_t between[64][64], Line[64][64];
 
+uint64_t cuckoo[8192];
+uint16_t cuckoo_moves[8192];
+
 const std::pair <int, int> knightDir[] = { {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2} };
 const std::pair <int, int> rookDir[] = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
 const std::pair <int, int> bishopDir[] = { {-1, 1}, {-1, -1}, {1, -1}, {1, 1} };

@@ -227,6 +227,35 @@ public:
         return 0;
     }
 
+    bool has_game_cycle(int ply) {
+        if (halfMoves < 3) return 0;
+
+        uint64_t allPieces = pieces[WHITE] | pieces[BLACK];
+
+        for (int i = 3; i <= halfMoves; i += 2) {
+            uint64_t key_needed = key ^ history[gamePly - i].key;
+            int ind = (key_needed & 8191);
+
+            if (cuckoo[ind] != key_needed) ind = (key_needed >> 16) & 8191;
+            if (cuckoo[ind] != key_needed) continue;
+
+            uint16_t move = cuckoo_moves[ind];
+            int from = sq_from(move), to = sq_to(move);
+
+            if ((between[from][to] ^ (1ULL << to)) & allPieces) continue;
+            if (ply > i) return 1;
+
+            int piece = (board[from] ? board[from] : board[to]);
+
+            if (piece && color_of(piece) != turn) continue;
+
+            for (int j = i + 4; j <= halfMoves; j += 2) {
+                if (history[halfMoves - j].key == history[halfMoves - i].key) return 1;
+            }
+        }
+        return 0;
+    }
+
     bool is_draw(int ply);
 };
 

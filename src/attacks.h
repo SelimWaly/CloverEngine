@@ -269,6 +269,8 @@ inline uint64_t genAttacksSq(uint64_t blockers, int sq, int pieceType) {
         return genAttacksRook(blockers, sq);
     case QUEEN:
         return genAttacksQueen(blockers, sq);
+    case KING:
+        return kingBBAttacks[sq];
     }
     assert(0);
     return 0;
