@@ -389,7 +389,7 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
         else {
             raw_eval = evaluate(board);
             stack->eval = eval = getCorrectedEval(this, raw_eval);
-            TT->save(entry, key, VALUE_NONE, 0, ply, 0, NULLMOVE, eval, wasPV);
+            TT->save(entry, key, VALUE_NONE, 0, ply, 0, NULLMOVE, raw_eval, wasPV);
         }
     }
     else { /// ttValue might be a better evaluation
@@ -471,7 +471,7 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
                     board.undo_move(move);
 
                     if (score >= probBeta) {
-                        TT->save(entry, key, score, depth - 3, ply, LOWER, move, static_eval, wasPV);
+                        TT->save(entry, key, score, depth - 3, ply, LOWER, move, raw_eval, wasPV);
                         return score;
                     }
                 }
@@ -694,7 +694,7 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
         bound = (best >= beta ? LOWER : (best > alphaOrig ? EXACT : UPPER));
         if (!isCheck && (!bestMove || !board.isCapture(bestMove)) && !(bound == LOWER && best <= static_eval) && !(bound == UPPER && best >= static_eval))
             updateCorrectionHist(this, depth, best - static_eval);
-        TT->save(entry, key, best, depth, ply, bound, (bound == UPPER ? NULLMOVE : bestMove), static_eval, wasPV);
+        TT->save(entry, key, best, depth, ply, bound, (bound == UPPER ? NULLMOVE : bestMove), raw_eval, wasPV);
     }
 
     return best;

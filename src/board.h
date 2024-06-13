@@ -229,6 +229,19 @@ public:
     }
 
     bool is_draw(int ply);
+
+    uint64_t get_pawn_key() {
+        uint64_t k = 0, b;
+        b = bb[WP];
+        while (b) {
+            k ^= hashKey[WP][sq_lsb(b)];
+        }
+        b = bb[BP];
+        while (b) {
+            k ^= hashKey[BP][sq_lsb(b)];
+        }
+        return k;
+    }
 };
 
 class Info {
