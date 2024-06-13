@@ -265,7 +265,7 @@ int Search::quiesce(int alpha, int beta, StackEntry* stack) {
         TT->prefetch(board.speculative_next_key(move));
         stack->move = move;
         stack->piece = board.piece_at(sq_from(move));
-        stack->continuationHist = &continuationHistory[!isNoisyMove(board, move)][stack->piece][sq_to(move)];
+        stack->cont_hist = &cont_hist[!isNoisyMove(board, move)][stack->piece][sq_to(move)];
 
         board.make_move(move);
         score = -quiesce<pvNode>(-beta, -alpha, stack + 1);
@@ -385,7 +385,7 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
         stack->eval = raw_eval = eval = INF;
     }
     else if (!ttHit) { /// if we are in a singular search, we already know the evaluation
-        if (stack->excluded) eval = stack->eval;
+        if (stack->excluded) raw_eval = eval = stack->eval;
         else {
             raw_eval = evaluate(board);
             stack->eval = eval = getCorrectedEval(this, raw_eval);
@@ -436,7 +436,7 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
 
                 stack->move = NULLMOVE;
                 stack->piece = 0;
-                stack->continuationHist = &continuationHistory[0][0][0];
+                stack->cont_hist = &cont_hist[0][0][0];
 
                 board.make_null_move();
                 int score = -search<false, false>(-beta, -beta + 1, depth - R, !cutNode, stack + 1);
@@ -461,7 +461,7 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
 
                     stack->move = move;
                     stack->piece = board.piece_at(sq_from(move));
-                    stack->continuationHist = &continuationHistory[0][stack->piece][sq_to(move)];
+                    stack->cont_hist = &cont_hist[0][stack->piece][sq_to(move)];
 
                     board.make_move(move);
 
@@ -589,7 +589,7 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
         TT->prefetch(board.speculative_next_key(move));
         stack->move = move;
         stack->piece = board.piece_at(sq_from(move));
-        stack->continuationHist = &continuationHistory[isQuiet][stack->piece][sq_to(move)];
+        stack->cont_hist = &cont_hist[isQuiet][stack->piece][sq_to(move)];
 
         board.make_move(move);
         played++;
@@ -782,7 +782,7 @@ std::pair <int, uint16_t> Search::start_search(Info* _info) {
     rootEval = (!board.checkers ? evaluate(board) : INF);
 
     for (int i = 1; i <= 10; i++)
-        (stack - i)->continuationHist = &continuationHistory[0][0][0], (stack - i)->eval = INF, (stack - i)->move = NULLMOVE;
+        (stack - i)->cont_hist = &cont_hist[0][0][0], (stack - i)->eval = INF, (stack - i)->move = NULLMOVE;
 
     //values[0].init("nmp_pv_rate");
 
@@ -958,12 +958,13 @@ void Search::clear_history() {
     memset(hist, 0, sizeof(hist));
     memset(capHist, 0, sizeof(capHist));
     memset(cmTable, 0, sizeof(cmTable));
-    memset(continuationHistory, 0, sizeof(continuationHistory));
+    memset(cont_hist, 0, sizeof(cont_hist));
     for (int i = 0; i < threadCount; i++) {
         memset(params[i].hist, 0, sizeof(params[i].hist));
         memset(params[i].capHist, 0, sizeof(params[i].capHist));
         memset(params[i].cmTable, 0, sizeof(params[i].cmTable));
-        memset(params[i].continuationHistory, 0, sizeof(params[i].continuationHistory));
+        memset(params[i].cont_hist, 0, sizeof(params[i].cont_hist));
+        memset(params[i].corr_hist, 0, sizeof(params[i].corr_hist));
     }
 }
 

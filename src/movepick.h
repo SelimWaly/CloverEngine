@@ -163,9 +163,9 @@ public:
                     const int from = sq_from(move), to = sq_to(move), piece = board.piece_at(from), pt = piece_type(piece);
 
                     score =  QuietHistCoef * searcher->hist[board.turn][!!(threatsEnemy & (1ULL << from))][!!(threatsEnemy & (1ULL << to))][fromTo(move)];
-                    score += QuietContHist1 * (*(stack - 1)->continuationHist)[piece][to];
-                    score += QuietContHist2 * (*(stack - 2)->continuationHist)[piece][to];
-                    score += QuietContHist4 * (*(stack - 4)->continuationHist)[piece][to];
+                    score += QuietContHist1 * (*(stack - 1)->cont_hist)[piece][to];
+                    score += QuietContHist2 * (*(stack - 2)->cont_hist)[piece][to];
+                    score += QuietContHist4 * (*(stack - 4)->cont_hist)[piece][to];
 
                     if (pt != PAWN && (pawnAttacks & (1ULL << to)))
                         score -= QuietPawnAttackedCoef * seeVal[pt];
