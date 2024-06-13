@@ -692,7 +692,7 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
     /// update tt only if we aren't in a singular search
     if (!stack->excluded) {
         bound = (best >= beta ? LOWER : (best > alphaOrig ? EXACT : UPPER));
-        if (!isCheck && (!bestMove || !board.isCapture(bestMove)) && !(bound == LOWER && best <= static_eval) && !(bound == UPPER && best >= static_eval))
+        if (!isCheck && (bound == UPPER || !board.isCapture(bestMove)) && !(bound == LOWER && best <= static_eval) && !(bound == UPPER && best >= static_eval))
             updateCorrectionHist(this, depth, best - static_eval);
         TT->save(entry, key, best, depth, ply, bound, (bound == UPPER ? NULLMOVE : bestMove), raw_eval, wasPV);
     }
