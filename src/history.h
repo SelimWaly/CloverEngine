@@ -106,7 +106,7 @@ void getHistory(Search* searcher, StackEntry* stack, uint16_t move, uint64_t thr
 
 void updateCorrectionHist(Search* searcher, int depth, int bonus) {
     int &correction = searcher->corr_hist[searcher->board.turn][searcher->board.pawn_key & 16383];
-    int w = depth; // to change
+    int w = std::min(depth, 14); // to change
     correction = (correction * (CorrectionHistScale - w) + bonus * w) / CorrectionHistScale;
     correction = std::clamp(correction, -32 * CorrectionHistDiv, 32 * CorrectionHistDiv);
 }
