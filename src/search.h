@@ -378,20 +378,23 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
     const bool isCheck = (board.checkers != 0);
     const Threats threatsEnemy = getThreats(board, board.turn);
     const bool quietUs = !threatsEnemy.threatsPieces;
+    int raw_eval = INF;
     //int quietEnemy = quietness(board, 1 ^ board.turn);
 
     if (isCheck) { /// when in check, don't evaluate
-        stack->eval = eval = INF;
+        stack->eval = raw_eval = eval = INF;
     }
     else if (!ttHit) { /// if we are in a singular search, we already know the evaluation
         if (stack->excluded) eval = stack->eval;
         else {
-            stack->eval = eval = evaluate(board);
+            raw_eval = evaluate(board);
+            stack->eval = eval = getCorrectedEval(this, raw_eval);
             TT->save(entry, key, VALUE_NONE, 0, ply, 0, NULLMOVE, eval, wasPV);
         }
     }
     else { /// ttValue might be a better evaluation
-        stack->eval = eval;
+        raw_eval = eval;
+        stack->eval = eval = getCorrectedEval(this, raw_eval);
         if (bound == EXACT || (bound == LOWER && ttValue > eval) || (bound == UPPER && ttValue < eval)) eval = ttValue;
     }
 
@@ -689,6 +692,8 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
     /// update tt only if we aren't in a singular search
     if (!stack->excluded) {
         bound = (best >= beta ? LOWER : (best > alphaOrig ? EXACT : UPPER));
+        if (!isCheck && (!bestMove || !board.isCapture(bestMove)) && !(bound == LOWER && best <= static_eval) && !(bound == UPPER && best >= static_eval))
+            updateCorrectionHist(this, depth, best - static_eval);
         TT->save(entry, key, best, depth, ply, bound, (bound == UPPER ? NULLMOVE : bestMove), static_eval, wasPV);
     }
 

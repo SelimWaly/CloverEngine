@@ -16,6 +16,7 @@
 */
 #pragma once
 #include <vector>
+#include <algorithm>
 #include "board.h"
 #include "defs.h"
 #include "thread.h"
@@ -101,4 +102,15 @@ void getHistory(Search* searcher, StackEntry* stack, uint16_t move, uint64_t thr
     hist += (*(stack - 2)->continuationHist)[piece][to];
 
     hist += (*(stack - 4)->continuationHist)[piece][to];
+}
+
+void updateCorrectionHist(Search* searcher, int depth, int bonus) {
+    int &correction = searcher->corr_hist[searcher->board.turn][searcher->board.pawn_key & 16383];
+    int w = depth; // to change
+    correction = (correction * (CorrectionHistScale - w) + bonus * w) / CorrectionHistScale;
+    correction = std::clamp(correction, -32 * CorrectionHistDiv, 32 * CorrectionHistDiv);
+}
+
+int getCorrectedEval(Search* searcher, int eval) {
+    return std::clamp(eval + searcher->corr_hist[searcher->board.turn][searcher->board.pawn_key & 16383] / CorrectionHistDiv, -MATE, MATE);
 }
