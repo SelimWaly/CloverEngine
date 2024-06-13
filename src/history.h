@@ -112,5 +112,5 @@ void updateCorrectionHist(Search* searcher, int depth, int bonus) {
 }
 
 int getCorrectedEval(Search* searcher, int eval) {
-    return std::clamp(eval + searcher->corr_hist[searcher->board.turn][searcher->board.pawn_key & 16383] / CorrectionHistDiv, -MATE, MATE);
+    return eval + searcher->corr_hist[searcher->board.turn][searcher->board.pawn_key & 16383] / CorrectionHistDiv;
 }

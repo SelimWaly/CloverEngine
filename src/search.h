@@ -215,17 +215,20 @@ int Search::quiesce(int alpha, int beta, StackEntry* stack) {
     Threats threatsEnemy{};
     if (isCheck) threatsEnemy = getThreats(board, board.turn);
     int futilityValue;
+    int raw_eval = INF;
 
     if (isCheck) {
-        stack->eval = INF;
+        raw_eval = stack->eval = INF;
         best = futilityValue = -INF;
     }
     else if (eval == INF) {
-        stack->eval = best = eval = evaluate(board);
+        raw_eval = evaluate(board);
+        stack->eval = best = eval = getCorrectedEval(this, raw_eval);
         futilityValue = best + QuiesceFutilityBias;
     }
     else { /// ttValue might be a better evaluation
-        stack->eval = eval;
+        raw_eval = eval;
+        stack->eval = eval = getCorrectedEval(this, raw_eval);
         if (bound == EXACT || (bound == LOWER && ttValue > eval) || (bound == UPPER && ttValue < eval)) best = ttValue;
         futilityValue = best + QuiesceFutilityBias;
     }
@@ -288,7 +291,7 @@ int Search::quiesce(int alpha, int beta, StackEntry* stack) {
 
     /// store info in transposition table
     bound = (best >= beta ? LOWER : (best > alphaOrig ? EXACT : UPPER));
-    TT->save(entry, key, best, 0, ply, bound, bestMove, stack->eval, wasPV);
+    TT->save(entry, key, best, 0, ply, bound, bestMove, raw_eval, wasPV);
 
     return best;
 }
