@@ -964,6 +964,7 @@ void Search::clear_history() {
     memset(capHist, 0, sizeof(capHist));
     memset(cmTable, 0, sizeof(cmTable));
     memset(cont_hist, 0, sizeof(cont_hist));
+    memset(corr_hist, 0, sizeof(corr_hist));
     for (int i = 0; i < threadCount; i++) {
         memset(params[i].hist, 0, sizeof(params[i].hist));
         memset(params[i].capHist, 0, sizeof(params[i].capHist));
