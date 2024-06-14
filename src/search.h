@@ -475,7 +475,8 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
                     board.undo_move(move);
 
                     if (score >= probBeta) {
-                        TT->save(entry, key, score, depth - 3, ply, LOWER, move, raw_eval, wasPV);
+                        if(!stack->excluded)
+                            TT->save(entry, key, score, depth - 3, ply, LOWER, move, raw_eval, wasPV);
                         return score;
                     }
                 }
