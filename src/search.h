@@ -429,7 +429,7 @@ int Search::search(int alpha, int beta, int depth, bool cutNode, StackEntry* sta
             if (!nullSearch && !stack->excluded && enemy_has_no_threats &&
                 eval >= beta + NMPEvalMargin * (depth <= 3) && eval >= static_eval &&
                 board.has_non_pawn_material(board.turn)) {
-                int R = NMPReduction + depth / NMPDepthDiv + (eval - beta) / NMPEvalDiv + improving;
+                int R = NMPReduction + depth / NMPDepthDiv + (eval - beta) / NMPEvalDiv + improving + (board.ply > 2 * rootDepth);
 
                 stack->move = NULLMOVE;
                 stack->piece = 0;
