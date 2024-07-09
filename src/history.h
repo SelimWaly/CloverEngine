@@ -103,12 +103,14 @@ void getHistory(Search* searcher, StackEntry* stack, Move move, uint64_t threats
 }
 
 void updateCorrHist(Search* searcher, int depth, int bonus) {
+    const bool turn = searcher->board.turn;
     int w = std::min(depth + 1, 16);
-    int& corr = searcher->corr_hist[searcher->board.turn][searcher->board.pawn_key & 16383];
+    int& corr = searcher->corr_hist[turn][kingIndTable[searcher->board.king(turn)]][searcher->board.pawn_key & 16383];
     corr = (corr * (CorrHistScale - w) + bonus * CorrHistDiv * w) / CorrHistScale;
     corr = std::clamp(corr, -32 * CorrHistDiv, 32 * CorrHistDiv);
 }
 
 int getCorrectedEval(Search* searcher, int eval) {
-    return eval + searcher->corr_hist[searcher->board.turn][searcher->board.pawn_key & 16383] / CorrHistDiv;
+    const bool turn = searcher->board.turn;
+    return eval + searcher->corr_hist[turn][kingIndTable[searcher->board.king(turn)]][searcher->board.pawn_key & 16383] / CorrHistDiv;
 }
